@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano FIRE — Italia</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#0c1120; --card:#141d2e; --card2:#1c2740;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --text:#eef2ff; --muted:#64748b; --muted2:#94a3b8;
+  --amber:#f59e0b; --green:#10b981; --red:#ef4444;
+  --blue:#3b82f6; --orange:#f97316; --purple:#8b5cf6;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 80px;}
+
+/* MODE TOGGLE */
+.mode-toggle{display:flex;justify-content:center;margin-bottom:36px;}
+.mode-wrap{display:flex;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:5px;gap:4px;}
+.mode-btn{padding:12px 28px;border:none;background:transparent;color:var(--muted2);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border-radius:12px;transition:all 0.2s;letter-spacing:0.01em;}
+.mode-btn:hover:not(.active){background:var(--card2);color:var(--text);}
+.mode-btn.active{background:var(--amber);color:#000;}
+
+/* SLIDERS */
+.sliders{display:grid;gap:12px;margin-bottom:20px;}
+.sliders.cols2{grid-template-columns:1fr 1fr;}
+.sliders.cols3{grid-template-columns:1fr 1fr 1fr;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;}
+.sc-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.sc-val{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--text);letter-spacing:-0.02em;margin-bottom:14px;line-height:1;}
+.sc-val small{font-size:14px;color:var(--muted2);margin-left:3px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;cursor:pointer;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--amber);border-radius:50%;border:3px solid var(--bg);cursor:pointer;transition:transform 0.15s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
+.sc-range{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:6px;}
+
+/* PARAMS ROW */
+.params-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;align-items:center;}
+.pp{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:99px;padding:5px 13px;}
+.pp-label{font-size:11px;color:var(--muted);}
+.pp-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--amber);}
+.pp-edit{font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline;margin-left:4px;}
+.adv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:20px;display:none;}
+.adv.open{display:block;}
+.adv-g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px;}
+.adv-item{display:flex;flex-direction:column;gap:5px;}
+.adv-head{display:flex;justify-content:space-between;}
+.adv-lbl{font-size:11px;color:var(--muted2);}
+.adv-val{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--muted2);}
+
+/* ANSWER / RESULT */
+.result-box{border-radius:var(--r);padding:26px 30px;margin-bottom:20px;text-align:center;}
+.result-box.mode-goal{background:linear-gradient(135deg,#0d2318 0%,#111d35 100%);border:1px solid rgba(16,185,129,0.3);}
+.result-box.mode-save{background:linear-gradient(135deg,#1a1a0d 0%,#111d35 100%);border:1px solid rgba(245,158,11,0.3);}
+.rb-label{font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.rb-main{font-family:'JetBrains Mono',monospace;font-size:50px;font-weight:600;letter-spacing:-0.03em;line-height:1;margin-bottom:6px;}
+.rb-main small{font-size:20px;margin-left:3px;}
+.rb-sub{font-size:13px;color:var(--muted2);line-height:1.7;}
+.rb-sub strong{color:var(--text);}
+
+/* GOALS PROGRESS (mode save) */
+.goals-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.goal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;}
+.goal-card.reached{border-color:var(--green);background:rgba(16,185,129,0.07);}
+.gc-name{font-size:11px;color:var(--muted2);margin-bottom:6px;}
+.gc-target{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--muted2);margin-bottom:6px;}
+.gc-year{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;}
+.gc-bar{height:4px;background:var(--border2);border-radius:2px;margin-top:8px;overflow:hidden;}
+.gc-bar-fill{height:100%;border-radius:2px;background:var(--green);transition:width 0.4s;}
+
+/* SCENARIOS (mode goal) */
+.sc-label2{font-size:13px;color:var(--muted2);margin-bottom:10px;}
+.sc-label2 strong{color:var(--text);}
+.scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:24px;}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:13px 9px;text-align:center;transition:border-color 0.15s;}
+.scard.cur{border-color:var(--amber);background:rgba(245,158,11,0.07);}
+.scard.ok{border-color:var(--green);background:rgba(16,185,129,0.07);}
+.scard-extra{font-size:10px;color:var(--muted);margin-bottom:5px;}
+.scard-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;margin-bottom:3px;}
+.scard-save{font-size:10px;color:var(--green);margin-bottom:3px;min-height:14px;}
+.scard-fire{font-size:10px;color:var(--muted);}
+.scard-fire span{font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+/* REAL RETURN STRIP */
+.rr-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
+.rr-card{border-radius:10px;padding:13px 16px;}
+.rr-card.etf{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);}
+.rr-card.robo{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15);}
+.rr-card.bank{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.2);}
+.rr-label{font-size:11px;color:var(--muted2);margin-bottom:4px;}
+.rr-val{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;}
+.rr-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:4px;width:fit-content;margin-bottom:20px;}
+.tab{padding:9px 20px;border:none;background:transparent;color:var(--muted2);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-radius:9px;transition:all 0.15s;}
+.tab:hover:not(.active){background:var(--card2);color:var(--text);}
+.tab.active{background:var(--card2);color:var(--text);border:1px solid var(--border2);}
+.panel{display:none;}.panel.active{display:block;}
+
+/* CHARTS */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.row1{margin-bottom:14px;}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;}
+.cc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.cc-sub{font-size:11px;color:var(--muted);margin-bottom:14px;}
+.cwrap{position:relative;width:100%;}
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2);}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+
+/* TAX ROWS */
+.tr{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-radius:9px;margin-bottom:6px;font-size:12px;}
+.tr.n{background:var(--card2);}
+.tr.m{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.14);}
+.tr.p{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.18);}
+.tr-l{color:var(--muted2);}
+.tr-v{font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+/* FEE CARDS */
+.fee-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+.fee-card{border-radius:9px;padding:10px 10px;text-align:center;}
+.fee-card.fc-bank{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);}
+.fee-card.fc-robo{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15);}
+.fee-card.fc-etf{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);}
+.fc-name{font-size:10px;color:var(--muted);margin-bottom:4px;}
+.fc-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;}
+.fc-diff{font-size:10px;color:var(--green);margin-top:3px;min-height:13px;}
+
+.note{font-size:11px;color:var(--muted);line-height:1.75;padding:12px 15px;background:var(--card2);border-radius:9px;margin-top:12px;}
+.note strong{color:var(--muted2);}
+.divline{height:1px;background:var(--border);margin:12px 0;}
+.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:36px;}
+
+@media(max-width:720px){
+  .sliders.cols2,.sliders.cols3{grid-template-columns:1fr;}
+  .goals-grid{grid-template-columns:repeat(2,1fr);}
+  .scenarios{grid-template-columns:repeat(3,1fr);}
+  .rr-strip,.fee-cards{grid-template-columns:1fr;}
+  .row2{grid-template-columns:1fr;}
+  .adv-g{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MODE TOGGLE -->
+  <div class="mode-toggle">
+    <div class="mode-wrap">
+      <button class="mode-btn active" id="btn-goal" onclick="setMode('goal')">🎯 Ho un obiettivo → dimmi quanto versare</button>
+      <button class="mode-btn" id="btn-save" onclick="setMode('save')">💰 So quanto verso → dimmi cosa accumulo</button>
+    </div>
+  </div>
+
+  <!-- ═══ MODE: GOAL ═══ -->
+  <div id="mode-goal">
+    <div class="sliders cols3">
+      <div class="sc">
+        <div class="sc-label">Voglio ogni mese (netti, €oggi)</div>
+        <div class="sc-val" id="g-v-rend">2.000 <small>€/mese</small></div>
+        <input type="range" id="g-s-rend" min="500" max="8000" step="100" value="2000">
+        <div class="sc-range"><span>€500</span><span>€8.000</span></div>
+      </div>
+      <div class="sc">
+        <div class="sc-label">Smetto di lavorare tra</div>
+        <div class="sc-val" id="g-v-years">32 <small>anni</small></div>
+        <input type="range" id="g-s-years" min="5" max="40" step="1" value="32">
+        <div class="sc-range"><span>5 anni</span><span>40 anni</span></div>
+      </div>
+      <div class="sc">
+        <div class="sc-label">Ho già risparmiato</div>
+        <div class="sc-val" id="g-v-start">4.500 <small>€</small></div>
+        <input type="range" id="g-s-start" min="0" max="50000" step="500" value="4500">
+        <div class="sc-range"><span>€0</span><span>€50.000</span></div>
+      </div>
+    </div>
+
+    <div class="result-box mode-goal">
+      <div class="rb-label">Devi versare ogni mese</div>
+      <div class="rb-main" style="color:var(--green)" id="g-ans">— <small>€/mese</small></div>
+      <div class="rb-sub" id="g-ans-sub">—</div>
+    </div>
+
+    <div class="sc-label2"><strong>E se hai cash extra?</strong> (SaaS, Shopify, freelance — reinvestito)</div>
+    <div class="scenarios" id="g-scenarios"></div>
+  </div>
+
+  <!-- ═══ MODE: SAVE ═══ -->
+  <div id="mode-save" style="display:none;">
+    <div class="sliders cols3">
+      <div class="sc">
+        <div class="sc-label">Verso ogni mese</div>
+        <div class="sc-val" id="s-v-monthly">500 <small>€/mese</small></div>
+        <input type="range" id="s-s-monthly" min="50" max="3000" step="50" value="500">
+        <div class="sc-range"><span>€50</span><span>€3.000</span></div>
+      </div>
+      <div class="sc">
+        <div class="sc-label">Per quanti anni</div>
+        <div class="sc-val" id="s-v-years">32 <small>anni</small></div>
+        <input type="range" id="s-s-years" min="1" max="40" step="1" value="32">
+        <div class="sc-range"><span>1 anno</span><span>40 anni</span></div>
+      </div>
+      <div class="sc">
+        <div class="sc-label">Ho già risparmiato</div>
+        <div class="sc-val" id="s-v-start">4.500 <small>€</small></div>
+        <input type="range" id="s-s-start" min="0" max="50000" step="500" value="4500">
+        <div class="sc-range"><span>€0</span><span>€50.000</span></div>
+      </div>
+    </div>
+
+    <div class="result-box mode-save">
+      <div class="rb-label">Accumulerai in totale (lordo)</div>
+      <div class="rb-main" style="color:var(--amber)" id="s-ans">— <small>€</small></div>
+      <div class="rb-sub" id="s-ans-sub">—</div>
+    </div>
+
+    <!-- MILESTONE GOALS -->
+    <div style="font-size:13px;color:var(--muted2);margin-bottom:10px;"><strong style="color:var(--text);">Quando raggiungi questi obiettivi?</strong></div>
+    <div class="goals-grid" id="s-goals"></div>
+  </div>
+
+  <!-- PARAMS + ADV (shared) -->
+  <div class="params-row">
+    <span style="font-size:11px;color:var(--muted);">Parametri:</span>
+    <div class="pp"><span class="pp-label">Rendimento</span><span class="pp-val" id="pp-ret">6%</span></div>
+    <div class="pp"><span class="pp-label">Inflazione</span><span class="pp-val">2%</span></div>
+    <div class="pp"><span class="pp-label">SWR</span><span class="pp-val" id="pp-swr">3.5%</span></div>
+    <div class="pp"><span class="pp-label">Bollo</span><span class="pp-val">0.20%</span></div>
+    <div class="pp"><span class="pp-label">CGT</span><span class="pp-val">26%</span></div>
+    <span class="pp-edit" onclick="toggleAdv()">modifica ▾</span>
+  </div>
+  <div class="adv" id="adv-panel">
+    <div style="font-size:13px;font-weight:700;">Parametri avanzati</div>
+    <div class="adv-g">
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Rendimento annuo lordo</span><span class="adv-val" id="vv-ret">6%</span></div><input type="range" id="ss-ret" min="2" max="12" step="0.5" value="6"></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Safe Withdrawal Rate</span><span class="adv-val" id="vv-swr">3.5%</span></div><input type="range" id="ss-swr" min="2" max="6" step="0.25" value="3.5"></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">TER fondo banca (stima)</span><span class="adv-val" id="vv-bank">2.0%</span></div><input type="range" id="ss-bank" min="0.5" max="3.5" step="0.1" value="2.0"></div>
+    </div>
+  </div>
+
+  <!-- REAL RETURN STRIP (shared) -->
+  <div class="rr-strip">
+    <div class="rr-card etf"><div class="rr-label">ETF diretto (es. VWCE)</div><div class="rr-val" style="color:var(--green)" id="rr-etf">3.58%</div><div class="rr-sub" id="rr-etf-sub">6%−2%−0.20%−0.22%</div></div>
+    <div class="rr-card robo"><div class="rr-label">Robo-advisor Revolut</div><div class="rr-val" style="color:var(--red)" id="rr-robo">2.85%</div><div class="rr-sub" id="rr-robo-sub">6%−2%−0.20%−0.95%</div></div>
+    <div class="rr-card bank"><div class="rr-label">Fondo banca (es. UniCredit)</div><div class="rr-val" style="color:var(--purple)" id="rr-bank">1.60%</div><div class="rr-sub" id="rr-bank-sub">6%−2%−0.20%−2.0%</div></div>
+  </div>
+
+  <!-- TABS (shared) -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab(0)">📈 Crescita capitale</button>
+    <button class="tab" onclick="showTab(1)">⚖️ Confronto strumenti</button>
+    <button class="tab" onclick="showTab(2)">🇮🇹 Tasse italiane</button>
+  </div>
+
+  <!-- TAB 0: CRESCITA -->
+  <div class="panel active" id="tab0">
+    <div class="row1">
+      <div class="cc">
+        <div class="cc-title">Crescita del capitale nel tempo</div>
+        <div class="cc-sub" id="t0-sub">Con il versamento calcolato — la linea gialla supera quella verde al FIRE</div>
+        <div class="leg">
+          <div class="leg-i"><div class="leg-dot" style="background:var(--amber)"></div>Capitale lordo</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--green);opacity:0.6"></div>Obiettivo FIRE</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--orange)"></div>Capitale netto (post-tasse)</div>
+        </div>
+        <div class="cwrap" style="height:290px"><canvas id="c-main"></canvas></div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="cc">
+        <div class="cc-title">I tuoi soldi vs il mercato</div>
+        <div class="cc-sub">Quanto hai versato vs quanto genera l'interesse composto</div>
+        <div class="cwrap" style="height:200px"><canvas id="c-compound"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">Rendita mensile netta al FIRE</div>
+        <div class="cc-sub">Quello che entra in tasca ogni mese</div>
+        <div id="rendita-box" style="margin-top:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1: CONFRONTO STRUMENTI -->
+  <div class="panel" id="tab1">
+    <div class="row1">
+      <div class="cc">
+        <div class="cc-title">Banca vs robo-advisor vs ETF diretto — stesso piano, costi diversi</div>
+        <div class="cc-sub">La differenza è solo quanto paghi di commissioni ogni anno</div>
+        <div class="leg">
+          <div class="leg-i"><div class="leg-dot" style="background:var(--purple)"></div>Fondo banca (~2%)</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--red)"></div>Robo-advisor Revolut (0.95%)</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--green)"></div>ETF diretto su Revolut (0.22%)</div>
+        </div>
+        <div class="cwrap" style="height:260px"><canvas id="c-fees"></canvas></div>
+        <div class="fee-cards" id="fee-cards"></div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Perché la banca costa di più:</strong> I fondi a gestione attiva di UniCredit, Intesa, ecc. hanno TER tipicamente tra 1.5% e 2.5%/anno — includono la commissione del gestore, la rete di distribuzione, e spesso commissioni di sottoscrizione/uscita. Gli ETF passivi (VWCE, SWDA) replicano automaticamente un indice senza gestore — da qui il costo bassissimo. <strong>Fiscalmente sono identici</strong>: tutti operano in regime amministrato in Italia, quindi non cambia nulla nel 730.
+    </div>
+  </div>
+
+  <!-- TAB 2: TASSE -->
+  <div class="panel" id="tab2">
+    <div class="row2">
+      <div class="cc">
+        <div class="cc-title">Dal lordo al netto — cosa paghi allo Stato</div>
+        <div class="cc-sub">Breakdown completo delle tasse italiane</div>
+        <div id="waterfall" style="margin-top:4px;"></div>
+      </div>
+      <div class="cc">
+        <div class="cc-title">Bollo pagato anno per anno</div>
+        <div class="cc-sub">Cresce col portafoglio — negli ultimi anni è la voce più pesante</div>
+        <div class="cwrap" style="height:200px"><canvas id="c-bollo"></canvas></div>
+      </div>
+    </div>
+    <div class="row1">
+      <div class="cc">
+        <div class="cc-title">Capitale netto con aliquote CGT diverse</div>
+        <div class="cc-sub">Scenario pessimistico vs attuale vs ottimistico</div>
+        <div class="cwrap" style="height:160px"><canvas id="c-cgt"></canvas></div>
+      </div>
+    </div>
+    <div class="note">
+      <strong>Come funziona la tassazione (regime amministrato):</strong> Il <strong>bollo 0.20%</strong> viene addebitato da Revolut ogni anno sul valore del portafoglio — non lo vedi nel 730, viene trattenuto direttamente. La <strong>CGT 26%</strong> si applica solo sulla plusvalenza (guadagno = valore finale − costo di acquisto), non su quello che hai versato. Con un PAC mensile il tuo costo medio è alto, quindi la quota tassabile è spesso inferiore al 60–65% del portafoglio totale.
+    </div>
+  </div>
+
+  <div class="footer">Simulazione educativa · Non è consulenza finanziaria · Regime amministrato italiano</div>
+</div>
+
+<script>
+// ── CONSTANTS ──
+const INF=2, CGT=26, BOLLO=0.2, ROBO=0.95, ETF_TER=0.22, Y0=2026;
+let RET=6, SWR=3.5, BANK_TER=2.0;
+let MODE='goal';
+
+const fmt=n=>{if(n>=1e6)return`€${(n/1e6).toFixed(2).replace('.',',')}M`;if(n>=1000)return`€${Math.round(n/1000)}k`;return`€${Math.round(n)}`;};
+const fmtFull=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+
+// ── PROJECTION ──
+function project(monthly, years, start, extra=0){
+  let cap=start, basis=start;
+  const r=RET/100/12, data=[];
+  for(let y=0;y<=years;y++){
+    const infl=Math.pow(1+INF/100,y);
+    const rendNetto=+document.getElementById(MODE==='goal'?'g-s-rend':'g-s-rend').value*infl;
+    const plusv=Math.max(0,cap-basis);
+    const taxCGT=plusv*(CGT/100);
+    const capNetto=cap-taxCGT;
+    const gainFrac=cap>0?Math.min(0.998,plusv/cap):0;
+    const taxRateW=gainFrac*(CGT/100);
+    const grossW=taxRateW<1?rendNetto/(1-taxRateW):rendNetto*2;
+    const reqCap=(grossW*12)/(SWR/100);
+    const versati=start+monthly*12*y;
+    data.push({y,year:Y0+y,cap:Math.round(cap),capNetto:Math.round(capNetto),
+      target:Math.round(reqCap),versati:Math.round(versati),
+      rendita:Math.round(Math.max(0,cap-versati)),plusv:Math.round(plusv),
+      taxCGT:Math.round(taxCGT),gainFrac,grossW:Math.round(grossW),netW:Math.round(rendNetto)});
+    for(let m=0;m<12;m++){cap=cap*(1+r)+monthly+extra;basis+=monthly+extra;}
+    cap-=cap*(BOLLO/100);
+  }
+  return data;
+}
+
+function projectSimple(monthly, years, start, ter){
+  let cap=start;
+  const r=(RET-ter)/100/12, data=[];
+  for(let y=0;y<=years;y++){
+    data.push({year:Y0+y,cap:Math.round(cap)});
+    for(let m=0;m<12;m++)cap=cap*(1+r)+monthly;
+    cap-=cap*(BOLLO/100);
+  }
+  return data;
+}
+
+function monthlyNeeded(target,r,n,start){
+  if(r===0)return Math.max(0,(target-start)/n);
+  const f=(Math.pow(1+r,n)-1)/r;
+  return Math.max(0,(target-start*Math.pow(1+r,n))/f);
+}
+
+// ── CHARTS ──
+const CH={};
+function mk(id,cfg){if(CH[id])CH[id].destroy();const el=document.getElementById(id);if(el)CH[id]=new Chart(el,cfg);}
+const TT={backgroundColor:'#1a2540',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#eef2ff',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.raw)}`}};
+const GR='rgba(255,255,255,0.05)',TX={color:'#64748b',font:{size:11}};
+
+// ── MAIN UPDATE ──
+function update(){
+  // Read shared adv params
+  RET=+document.getElementById('ss-ret').value;
+  SWR=+document.getElementById('ss-swr').value;
+  BANK_TER=+document.getElementById('ss-bank').value;
+  document.getElementById('pp-ret').textContent=RET+'%';
+  document.getElementById('pp-swr').textContent=SWR+'%';
+  document.getElementById('vv-ret').textContent=RET+'%';
+  document.getElementById('vv-swr').textContent=SWR+'%';
+  document.getElementById('vv-bank').textContent=BANK_TER.toFixed(1)+'%';
+
+  // Real return strip
+  const rrEtf=(RET-INF-BOLLO-ETF_TER).toFixed(2);
+  const rrRobo=(RET-INF-BOLLO-ROBO).toFixed(2);
+  const rrBank=(RET-INF-BOLLO-BANK_TER).toFixed(2);
+  document.getElementById('rr-etf').textContent=rrEtf+'%';
+  document.getElementById('rr-robo').textContent=rrRobo+'%';
+  document.getElementById('rr-bank').textContent=rrBank+'%';
+  document.getElementById('rr-etf-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${ETF_TER}%`;
+  document.getElementById('rr-robo-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${ROBO}%`;
+  document.getElementById('rr-bank-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${BANK_TER}%`;
+
+  if(MODE==='goal') updateGoal();
+  else updateSave();
+}
+
+function updateGoal(){
+  const rend=+document.getElementById('g-s-rend').value;
+  const years=+document.getElementById('g-s-years').value;
+  const start=+document.getElementById('g-s-start').value;
+  document.getElementById('g-v-rend').innerHTML=`${rend.toLocaleString('it-IT')} <small>€/mese</small>`;
+  document.getElementById('g-v-years').innerHTML=`${years} <small>anni</small>`;
+  document.getElementById('g-v-start').innerHTML=`${start.toLocaleString('it-IT')} <small>€</small>`;
+
+  const infl=Math.pow(1+INF/100,years);
+  const rendNomNetto=rend*infl;
+  const approxGF=0.62;
+  const grossW=rendNomNetto/(1-approxGF*(CGT/100));
+  const targetCap=(grossW*12)/(SWR/100);
+  const r=RET/100/12, n=years*12;
+  const needed=monthlyNeeded(targetCap,r,n,start);
+
+  const base=project(needed,years,start,0);
+  const fin=base[base.length-1];
+
+  document.getElementById('g-ans').innerHTML=`${Math.round(needed).toLocaleString('it-IT')} <small>€/mese</small>`;
+  document.getElementById('g-ans-sub').innerHTML=
+    `Per accumulare <strong>${fmt(fin.target)}</strong> lordi in ${years} anni · netto post-tasse: <strong>${fmt(fin.capNetto)}</strong> · rendita: <strong>${fmtFull(fin.netW)}/mese</strong> nel ${Y0+years}`;
+
+  // SCENARIOS
+  const extraLevels=[0,200,500,1000,2000];
+  document.getElementById('g-scenarios').innerHTML=extraLevels.map((ex,i)=>{
+    const req=Math.max(0,needed-ex);
+    const isOk=needed<=ex;
+    const d=project(req,years,start,ex);
+    const fireYear=d.find(dd=>dd.cap>=dd.target)?.year;
+    const saving=needed-req;
+    return`<div class="scard ${i===0?'cur':''} ${isOk?'ok':''}">
+      <div class="scard-extra">${ex===0?'Solo risparmio':`+${fmt(ex)}/mese`}</div>
+      <div class="scard-val" style="color:${isOk?'var(--green)':i===0?'var(--amber)':'var(--text)'}">
+        ${isOk?'€0 ✓':fmtFull(Math.round(req))}
+      </div>
+      <div class="scard-save">${saving>0&&!isOk?`risparmi ${fmt(saving)}/mese`:isOk?'solo cash extra!':''}</div>
+      <div class="scard-fire">FIRE: <span style="color:${fireYear&&fireYear<=Y0+years?'var(--green)':'var(--muted2)'}">${fireYear||`>${Y0+years}`}</span></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('t0-sub').textContent='Con il versamento calcolato — la linea gialla supera quella verde al FIRE';
+  renderSharedCharts(base, needed, years, start, fin);
+}
+
+function updateSave(){
+  const monthly=+document.getElementById('s-s-monthly').value;
+  const years=+document.getElementById('s-s-years').value;
+  const start=+document.getElementById('s-s-start').value;
+  document.getElementById('s-v-monthly').innerHTML=`${monthly.toLocaleString('it-IT')} <small>€/mese</small>`;
+  document.getElementById('s-v-years').innerHTML=`${years} <small>anni</small>`;
+  document.getElementById('s-v-start').innerHTML=`${start.toLocaleString('it-IT')} <small>€</small>`;
+
+  const base=project(monthly,years,start,0);
+  const fin=base[base.length-1];
+  const versatiTot=start+monthly*12*years;
+  const totalTax=fin.taxCGT; // simplified
+
+  document.getElementById('s-ans').innerHTML=`${fmt(fin.cap)} <small>lordi</small>`;
+  document.getElementById('s-ans-sub').innerHTML=
+    `Netto post-tasse: <strong>${fmt(fin.capNetto)}</strong> · Versamenti tuoi: <strong>${fmt(versatiTot)}</strong> · Generato dal mercato: <strong>${fmt(Math.max(0,fin.cap-versatiTot))}</strong>`;
+
+  // MILESTONE GOALS
+  const milestones=[
+    {name:'Fondo emergenza',target:15000,icon:'🛡️'},
+    {name:'Auto / viaggio',target:30000,icon:'🚗'},
+    {name:'Anticipo casa',target:80000,icon:'🏠'},
+    {name:'FIRE parziale',target:300000,icon:'🔥'},
+  ];
+  document.getElementById('s-goals').innerHTML=milestones.map(m=>{
+    const reachYear=base.find(d=>d.cap>=m.target)?.year;
+    const reached=!!reachYear;
+    const pct=Math.min(100,Math.round(fin.cap/m.target*100));
+    return`<div class="goal-card ${reached?'reached':''}">
+      <div class="gc-name">${m.icon} ${m.name}</div>
+      <div class="gc-target">${fmt(m.target)}</div>
+      <div class="gc-year" style="color:${reached?'var(--green)':'var(--muted2)'}">
+        ${reached?reachYear:`>${Y0+years}`}
+      </div>
+      <div class="gc-bar"><div class="gc-bar-fill" style="width:${pct}%;background:${reached?'var(--green)':'var(--amber)'}"></div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('t0-sub').textContent='Proiezione con il tuo versamento mensile';
+  renderSharedCharts(base, monthly, years, start, fin);
+}
+
+function renderSharedCharts(base, monthly, years, start, fin){
+  const years_arr=base.map(d=>d.year);
+  const caps=base.map(d=>d.cap);
+  const targets=base.map(d=>d.target);
+  const capNetti=base.map(d=>d.capNetto);
+  const versati=base.map(d=>d.versati);
+  const rendite=base.map(d=>Math.max(0,d.rendita));
+
+  // Datasets for main chart — in save mode hide FIRE line if not relevant
+  const mainDatasets=[
+    {label:'Capitale netto',data:capNetti,borderColor:'#f97316',borderWidth:1.5,fill:false,pointRadius:0,tension:0.4,borderDash:[3,3]},
+    {label:'Capitale lordo',data:caps,borderColor:'#f59e0b',borderWidth:2.5,fill:false,pointRadius:0,tension:0.4},
+  ];
+  if(MODE==='goal') mainDatasets.unshift({label:'Obiettivo FIRE',data:targets,borderColor:'rgba(16,185,129,0.5)',borderWidth:1.5,borderDash:[6,4],fill:false,pointRadius:0,tension:0.4});
+
+  mk('c-main',{type:'line',data:{labels:years_arr,datasets:mainDatasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:TT},
+      scales:{x:{ticks:{...TX,maxTicksLimit:9},grid:{color:GR}},y:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false}}}}});
+
+  mk('c-compound',{type:'bar',data:{labels:years_arr.filter((_,i)=>i%4===0),datasets:[
+    {label:'Versamenti tuoi',data:versati.filter((_,i)=>i%4===0),backgroundColor:'rgba(59,130,246,0.7)',stack:'s',borderRadius:3},
+    {label:'Generato dal mercato',data:rendite.filter((_,i)=>i%4===0).map(v=>Math.max(0,v)),backgroundColor:'rgba(245,158,11,0.8)',stack:'s',borderRadius:3},
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.raw)}`}}},
+    scales:{x:{ticks:TX,grid:{display:false},stacked:true},y:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false},stacked:true}}}});
+
+  // Rendita box
+  if(MODE==='goal'){
+    const taxPerMonth=fin.grossW-fin.netW;
+    document.getElementById('rendita-box').innerHTML=`
+      <div class="tr n"><span class="tr-l">Prelevi lordo</span><span class="tr-v" style="color:var(--amber)">${fmtFull(fin.grossW)}/mese</span></div>
+      <div class="tr m"><span class="tr-l">− CGT (${(fin.gainFrac*100).toFixed(0)}% plusvalenza)</span><span class="tr-v" style="color:var(--red)">− ${fmtFull(taxPerMonth)}/mese</span></div>
+      <div class="tr p"><span class="tr-l">= Ti entra in tasca</span><span class="tr-v" style="color:var(--green);font-size:15px;">${fmtFull(fin.netW)}/mese</span></div>`;
+  } else {
+    const rendita=Math.round((fin.cap*(SWR/100))/12);
+    const rendNetta=Math.round(rendita*(1-fin.gainFrac*(CGT/100)));
+    document.getElementById('rendita-box').innerHTML=`
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Se ti ritirassi dopo ${years} anni con SWR ${SWR}%:</div>
+      <div class="tr n"><span class="tr-l">Prelievo lordo mensile</span><span class="tr-v" style="color:var(--amber)">${fmtFull(rendita)}/mese</span></div>
+      <div class="tr p"><span class="tr-l">Rendita netta stimata</span><span class="tr-v" style="color:var(--green);font-size:15px;">${fmtFull(rendNetta)}/mese</span></div>`;
+  }
+
+  // Fee comparison
+  const feeEtf=projectSimple(monthly,years,start,ETF_TER);
+  const feeRobo=projectSimple(monthly,years,start,ROBO);
+  const feeBank=projectSimple(monthly,years,start,BANK_TER);
+  mk('c-fees',{type:'line',data:{labels:years_arr,datasets:[
+    {label:`Fondo banca (${BANK_TER}%)`,data:feeBank.map(d=>d.cap),borderColor:'#8b5cf6',borderWidth:2,fill:false,pointRadius:0,tension:0.4,borderDash:[4,3]},
+    {label:'Robo-advisor (0.95%)',data:feeRobo.map(d=>d.cap),borderColor:'#ef4444',borderWidth:2,fill:false,pointRadius:0,tension:0.4,borderDash:[5,3]},
+    {label:'ETF diretto (0.22%)',data:feeEtf.map(d=>d.cap),borderColor:'#10b981',borderWidth:2.5,fill:false,pointRadius:0,tension:0.4},
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:TT},
+    scales:{x:{ticks:{...TX,maxTicksLimit:9},grid:{color:GR}},y:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false}}}}});
+
+  const capBank=feeBank[feeBank.length-1].cap;
+  const capRobo=feeRobo[feeRobo.length-1].cap;
+  const capEtf=feeEtf[feeEtf.length-1].cap;
+  document.getElementById('fee-cards').innerHTML=`
+    <div class="fee-card fc-bank"><div class="fc-name">Fondo banca (${BANK_TER}%)</div><div class="fc-val" style="color:var(--purple)">${fmt(capBank)}</div><div class="fc-diff"></div></div>
+    <div class="fee-card fc-robo"><div class="fc-name">Robo-advisor (0.95%)</div><div class="fc-val" style="color:var(--red)">${fmt(capRobo)}</div><div class="fc-diff">+${fmt(capRobo-capBank)} vs banca</div></div>
+    <div class="fee-card fc-etf"><div class="fc-name">ETF diretto (0.22%)</div><div class="fc-val" style="color:var(--green)">${fmt(capEtf)}</div><div class="fc-diff">+${fmt(capEtf-capBank)} vs banca</div></div>`;
+
+  // Bollo chart
+  mk('c-bollo',{type:'bar',data:{labels:years_arr.filter((_,i)=>i%4===0),datasets:[
+    {label:'Bollo annuale',data:base.filter((_,i)=>i%4===0).map(d=>Math.round(d.cap*(BOLLO/100))),backgroundColor:'rgba(249,115,22,0.65)',borderRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` Bollo: ${fmt(ctx.raw)}`}}},
+    scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false}}}}});
+
+  // Waterfall
+  let capNB=start;const r0=RET/100/12;
+  for(let y=0;y<years;y++)for(let m=0;m<12;m++)capNB=capNB*(1+r0)+monthly;
+  const bolloCum=Math.max(0,capNB-fin.cap-fin.taxCGT);
+  const totalTax=bolloCum+fin.taxCGT;
+  document.getElementById('waterfall').innerHTML=`
+    <div class="tr n"><span class="tr-l">Capitale lordo accumulato</span><span class="tr-v" style="color:var(--amber)">${fmt(fin.cap)}</span></div>
+    <div class="tr m"><span class="tr-l">− Imposta di bollo (${years} anni)</span><span class="tr-v" style="color:var(--orange)">− ${fmt(bolloCum)}</span></div>
+    <div class="tr m"><span class="tr-l">− CGT 26% sulla plusvalenza (${fmt(fin.plusv)})</span><span class="tr-v" style="color:var(--red)">− ${fmt(fin.taxCGT)}</span></div>
+    <div class="tr p"><span class="tr-l">= Capitale netto disponibile</span><span class="tr-v" style="color:var(--green)">${fmt(fin.capNetto)}</span></div>
+    <div class="divline"></div>
+    <div style="font-size:11px;color:var(--muted);">Tasse totali stimate: <strong style="color:var(--red);font-family:'JetBrains Mono',monospace;">${fmt(totalTax)}</strong></div>`;
+
+  // CGT scenarios
+  mk('c-cgt',{type:'bar',data:{
+    labels:['0%','12.5% (titoli stato)','26% (attuale)','33% (ipotetico)'],
+    datasets:[{label:'Cap. netto',data:[0,12.5,26,33].map(rate=>Math.max(0,Math.round(fin.cap-fin.plusv*(rate/100)))),
+      backgroundColor:['#10b981','#3b82f6','#f59e0b','#ef4444'],borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:ctx=>` Netto: ${fmt(ctx.raw)}`}}},
+      scales:{x:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false}},y:{ticks:TX,grid:{display:false}}}}});
+}
+
+// ── MODE SWITCH ──
+function setMode(m){
+  MODE=m;
+  document.getElementById('btn-goal').classList.toggle('active',m==='goal');
+  document.getElementById('btn-save').classList.toggle('active',m==='save');
+  document.getElementById('mode-goal').style.display=m==='goal'?'block':'none';
+  document.getElementById('mode-save').style.display=m==='save'?'block':'none';
+  setTimeout(update,20);
+}
+
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((b,j)=>b.classList.toggle('active',i===j));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+  setTimeout(update,20);
+}
+
+function toggleAdv(){document.getElementById('adv-panel').classList.toggle('open');}
+
+// ── WIRE UP ALL SLIDERS ──
+['g-s-rend','g-s-years','g-s-start','s-s-monthly','s-s-years','s-s-start','ss-ret','ss-swr','ss-bank']
+  .forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',update);});
+
+update();
+</script>
+</body>
+</html>
