@@ -155,6 +155,13 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .timeline-table tbody tr:nth-child(even){background:rgba(255,255,255,0.02);}
 .timeline-table .mono{font-family:'JetBrains Mono',monospace;}
 .timeline-table .muted{color:var(--muted2);}
+.actions-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;}
+.share-copy{flex:1;min-width:220px;}
+.share-head{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.share-status{font-size:11px;color:var(--muted);line-height:1.6;min-height:18px;}
+.share-btn{border:none;border-radius:11px;background:var(--amber);color:#000;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;padding:12px 18px;cursor:pointer;transition:transform 0.15s,opacity 0.15s;white-space:nowrap;}
+.share-btn:hover{transform:translateY(-1px);}
+.share-btn:disabled{opacity:0.7;cursor:wait;transform:none;}
 
 @media(max-width:720px){
   .wrap{padding:28px 16px 64px;}
@@ -181,6 +188,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 @media(max-width:540px){
   .wrap{padding:24px 14px 56px;}
   .params-row{gap:8px;}
+  .actions-bar{align-items:stretch;}
   .pp{width:100%;justify-content:space-between;padding:8px 12px;}
   .sc-range{font-size:10px;}
   .rb-label,.cc-sub,.note{font-size:11px;}
@@ -188,6 +196,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   .insights{grid-template-columns:1fr;}
   .scenarios{grid-template-columns:1fr 1fr;}
   .adv-g{grid-template-columns:1fr;}
+  .share-btn{width:100%;}
 }
 </style>
 </head>
@@ -307,6 +316,14 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     <!-- MILESTONE GOALS -->
     <div style="font-size:13px;color:var(--muted2);margin-bottom:10px;"><strong style="color:var(--text);">Quando raggiungi questi obiettivi?</strong></div>
     <div class="goals-grid" id="s-goals"></div>
+  </div>
+
+  <div class="actions-bar">
+    <div class="share-copy">
+      <div class="share-head">Condividi la simulazione corrente</div>
+      <div class="share-status" id="share-status" aria-live="polite">Preparo un riepilogo della previsione attiva e lo condivido dal dispositivo o lo copio negli appunti.</div>
+    </div>
+    <button class="share-btn" id="share-btn" type="button" onclick="shareForecast()">Condividi previsione</button>
   </div>
 
   <!-- PARAMS + ADV (shared) -->
@@ -437,6 +454,7 @@ const INF=2, CGT=26, BOLLO=0.2, ROBO=0.95, ETF_TER=0.22;
 const Y0=new Date().getFullYear();
 let RET=6, SWR=3.5, BANK_TER=2.0;
 let MODE='goal';
+let CURRENT_SUMMARY=null;
 
 const fmt=n=>{if(n>=1e6)return`€${(n/1e6).toFixed(2).replace('.',',')}M`;if(n>=1000)return`€${Math.round(n/1000)}k`;return`€${Math.round(n)}`;};
 const fmtFull=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
@@ -456,6 +474,61 @@ const SYNC_PAIRS=[
 const CH={};
 const TT={backgroundColor:'#1a2540',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#eef2ff',callbacks:{label:ctx=>` ${ctx.dataset.label}: ${fmt(ctx.raw)}`}};
 const GR='rgba(255,255,255,0.05)',TX={color:'#64748b',font:{size:11}};
+
+function shareUrl(){return /^https?:$/i.test(location.protocol)?location.href:'';}
+function shareText(){return CURRENT_SUMMARY?(CURRENT_SUMMARY.url?`${CURRENT_SUMMARY.text}\n${CURRENT_SUMMARY.url}`:CURRENT_SUMMARY.text):'';}
+function setShareStatus(message){
+  const el=document.getElementById('share-status');
+  if(el)el.textContent=message;
+}
+async function copyText(text){
+  if(navigator.clipboard&&window.isSecureContext){
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const area=document.createElement('textarea');
+  area.value=text;
+  area.setAttribute('readonly','true');
+  area.style.position='fixed';
+  area.style.top='-9999px';
+  area.style.opacity='0';
+  document.body.appendChild(area);
+  area.select();
+  area.setSelectionRange(0,area.value.length);
+  const copied=document.execCommand('copy');
+  document.body.removeChild(area);
+  if(!copied)throw new Error('copy_failed');
+}
+async function shareForecast(){
+  if(!CURRENT_SUMMARY)return;
+  const btn=document.getElementById('share-btn');
+  if(btn)btn.disabled=true;
+  setShareStatus('Preparo il riepilogo della previsione...');
+  try{
+    if(navigator.share){
+      const payload={title:CURRENT_SUMMARY.title,text:CURRENT_SUMMARY.text};
+      if(CURRENT_SUMMARY.url)payload.url=CURRENT_SUMMARY.url;
+      await navigator.share(payload);
+      setShareStatus('Previsione condivisa.');
+      return;
+    }
+    await copyText(shareText());
+    setShareStatus('Riepilogo copiato negli appunti.');
+  }catch(err){
+    if(err&&err.name==='AbortError'){
+      setShareStatus('Condivisione annullata.');
+      return;
+    }
+    try{
+      await copyText(shareText());
+      setShareStatus('Condivisione non disponibile: riepilogo copiato negli appunti.');
+    }catch(copyErr){
+      setShareStatus('Impossibile condividere o copiare il riepilogo.');
+    }
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
 
 function clamp(value,min,max){return Math.min(max,Math.max(min,value));}
 function stepDecimals(step){const s=String(step||1);return s.includes('.')?s.split('.')[1].length:0;}
@@ -660,6 +733,24 @@ function updateGoal(){
     {label:'Versamento annuo',value:fmtFull(annualNeeded),sub:`pari a ${fmtFull(Math.round(needed))}/mese`},
   ]);
 
+  CURRENT_SUMMARY={
+    title:'Previsione FIRE - obiettivo',
+    text:[
+      'Simulazione FIRE Italia',
+      'Modalita: ho un obiettivo',
+      `Entrata desiderata: ${fmtFull(rend)}/mese netti`,
+      `Eta attuale: ${ages.current} anni`,
+      `Eta FIRE: ${ages.target} anni`,
+      `Capitale iniziale: ${fmtFull(start)}`,
+      `Versamento richiesto: ${fmtFull(Math.round(needed))}/mese`,
+      `Capitale FIRE lordo stimato: ${fmtFull(fin.target)}`,
+      `Capitale netto stimato nel ${ages.targetYear}: ${fmtFull(fin.capNetto)}`,
+      `Ipotesi: rendimento ${RET}%, inflazione ${INF}%, SWR ${SWR}%`
+    ].join('\n'),
+    url:shareUrl()
+  };
+  setShareStatus(`Riepilogo pronto: servono circa ${fmtFull(Math.round(needed))}/mese per arrivare al target FIRE.`);
+
   const extraLevels=[0,250,500,1000,1500];
   document.getElementById('g-scenarios').innerHTML=extraLevels.map((ex,i)=>{
     const req=Math.max(0,needed-ex);
@@ -709,6 +800,24 @@ function updateSave(){
     {label:'Capitale netto',value:fmt(fin.capNetto),sub:`dopo bollo e CGT stimata`},
     {label:'Rendita netta stimata',value:`${fmtFull(renditaNetta)}/mese`,sub:`con SWR ${SWR}%`},
   ]);
+
+  CURRENT_SUMMARY={
+    title:'Previsione FIRE - accumulo',
+    text:[
+      'Simulazione FIRE Italia',
+      'Modalita: so quanto verso',
+      `Versamento mensile: ${fmtFull(monthly)}/mese`,
+      `Eta attuale: ${ages.current} anni`,
+      `Eta target: ${ages.target} anni`,
+      `Capitale iniziale: ${fmtFull(start)}`,
+      `Capitale lordo stimato: ${fmtFull(fin.cap)}`,
+      `Capitale netto stimato nel ${ages.targetYear}: ${fmtFull(fin.capNetto)}`,
+      `Rendita netta stimata: ${fmtFull(renditaNetta)}/mese`,
+      `Ipotesi: rendimento ${RET}%, inflazione ${INF}%, SWR ${SWR}%`
+    ].join('\n'),
+    url:shareUrl()
+  };
+  setShareStatus(`Riepilogo pronto: accumulo stimato ${fmtFull(fin.capNetto)} netti entro i ${ages.target} anni.`);
 
   const milestones=[
     {name:'Fondo emergenza',target:15000,icon:'🛡️'},
