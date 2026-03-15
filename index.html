@@ -138,12 +138,33 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .footer{text-align:center;font-size:11px;color:var(--muted);margin-top:36px;}
 
 @media(max-width:720px){
+  .wrap{padding:28px 16px 64px;}
+  .mode-toggle{margin-bottom:24px;}
+  .mode-wrap{width:100%;max-width:520px;flex-direction:column;padding:6px;}
+  .mode-btn{width:100%;padding:14px 16px;line-height:1.3;}
+  .sc,.cc,.adv,.result-box{padding:18px 16px;}
   .sliders.cols2,.sliders.cols3{grid-template-columns:1fr;}
+  .sc-val{font-size:28px;}
+  .rb-main{font-size:42px;}
+  .rb-main small{font-size:17px;}
   .goals-grid{grid-template-columns:repeat(2,1fr);}
   .scenarios{grid-template-columns:repeat(3,1fr);}
   .rr-strip,.fee-cards{grid-template-columns:1fr;}
+  .tabs{width:100%;overflow-x:auto;overflow-y:hidden;padding:4px;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex:1 0 auto;white-space:nowrap;}
   .row2{grid-template-columns:1fr;}
   .adv-g{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:540px){
+  .wrap{padding:24px 14px 56px;}
+  .params-row{gap:8px;}
+  .pp{width:100%;justify-content:space-between;padding:8px 12px;}
+  .sc-range{font-size:10px;}
+  .rb-label,.cc-sub,.note{font-size:11px;}
+  .rb-main{font-size:36px;}
+  .scenarios{grid-template-columns:1fr 1fr;}
+  .adv-g{grid-template-columns:1fr;}
 }
 </style>
 </head>
