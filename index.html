@@ -52,6 +52,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .pp-label{font-size:11px;color:var(--muted);}
 .pp-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--amber);}
 .pp-edit{font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline;margin-left:4px;}
+.adv-btn{border:none;border-radius:99px;background:var(--card2);border:1px solid var(--border2);color:var(--muted2);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:5px 13px;cursor:pointer;transition:all 0.15s;letter-spacing:0.01em;}
+.adv-btn:hover{background:var(--amber);color:#000;border-color:var(--amber);}
+.adv-btn.open{background:var(--amber);color:#000;border-color:var(--amber);}
 .adv{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:20px;display:none;}
 .adv.open{display:block;}
 .adv-g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px;}
@@ -185,6 +188,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   .row2{grid-template-columns:1fr;}
   .adv-g{grid-template-columns:1fr 1fr;}
 }
+.tab-short{display:none;}
+@media(max-width:540px){
+  .tab-full{display:none;}
+  .tab-short{display:inline;}
+}
 @media(max-width:540px){
   .wrap{padding:24px 14px 56px;}
   .params-row{gap:8px;}
@@ -227,9 +235,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
         <div class="sc-label">Età attuale</div>
         <div class="sc-top">
           <div class="sc-val" id="g-v-age-now">30 <small>anni</small></div>
-          <input class="sc-num" type="number" id="g-i-age-now" min="18" max="75" step="1" value="30">
+          <input class="sc-num" type="number" id="g-i-age-now" min="18" max="75" step="1" value="28">
         </div>
-        <input type="range" id="g-s-age-now" min="18" max="75" step="1" value="30">
+        <input type="range" id="g-s-age-now" min="18" max="75" step="1" value="28">
         <div class="sc-range"><span>18 anni</span><span>75 anni</span></div>
       </div>
       <div class="sc">
@@ -245,9 +253,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
         <div class="sc-label">Ho già investito</div>
         <div class="sc-top">
           <div class="sc-val" id="g-v-start">4.500 <small>€</small></div>
-          <input class="sc-num" type="number" id="g-i-start" min="0" max="50000" step="500" value="4500">
+          <input class="sc-num" type="number" id="g-i-start" min="0" max="50000" step="500" value="6000">
         </div>
-        <input type="range" id="g-s-start" min="0" max="50000" step="500" value="4500">
+        <input type="range" id="g-s-start" min="0" max="50000" step="500" value="6000">
         <div class="sc-range"><span>€0</span><span>€50.000</span></div>
       </div>
     </div>
@@ -280,9 +288,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
         <div class="sc-label">Età attuale</div>
         <div class="sc-top">
           <div class="sc-val" id="s-v-age-now">30 <small>anni</small></div>
-          <input class="sc-num" type="number" id="s-i-age-now" min="18" max="75" step="1" value="30">
+          <input class="sc-num" type="number" id="s-i-age-now" min="18" max="75" step="1" value="28">
         </div>
-        <input type="range" id="s-s-age-now" min="18" max="75" step="1" value="30">
+        <input type="range" id="s-s-age-now" min="18" max="75" step="1" value="28">
         <div class="sc-range"><span>18 anni</span><span>75 anni</span></div>
       </div>
       <div class="sc">
@@ -298,9 +306,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
         <div class="sc-label">Ho già investito</div>
         <div class="sc-top">
           <div class="sc-val" id="s-v-start">4.500 <small>€</small></div>
-          <input class="sc-num" type="number" id="s-i-start" min="0" max="50000" step="500" value="4500">
+          <input class="sc-num" type="number" id="s-i-start" min="0" max="50000" step="500" value="6000">
         </div>
-        <input type="range" id="s-s-start" min="0" max="50000" step="500" value="4500">
+        <input type="range" id="s-s-start" min="0" max="50000" step="500" value="6000">
         <div class="sc-range"><span>€0</span><span>€50.000</span></div>
       </div>
     </div>
@@ -334,7 +342,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     <div class="pp"><span class="pp-label">SWR</span><span class="pp-val" id="pp-swr">3.5%</span></div>
     <div class="pp"><span class="pp-label">Bollo</span><span class="pp-val">0.20%</span></div>
     <div class="pp"><span class="pp-label">CGT</span><span class="pp-val">26%</span></div>
-    <span class="pp-edit" onclick="toggleAdv()">modifica ▾</span>
+    <button class="adv-btn" id="adv-btn" onclick="toggleAdv()">⚙ Parametri avanzati</button>
   </div>
   <div class="adv" id="adv-panel">
     <div style="font-size:13px;font-weight:700;">Parametri avanzati</div>
@@ -345,19 +353,12 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     </div>
   </div>
 
-  <!-- REAL RETURN STRIP (shared) -->
-  <div class="rr-strip">
-    <div class="rr-card etf"><div class="rr-label">ETF ultra low-cost (es. VUSA)</div><div class="rr-val" style="color:var(--green)" id="rr-etf">3.73%</div><div class="rr-sub" id="rr-etf-sub">6%−2%−0.20%−0.07%</div></div>
-    <div class="rr-card robo"><div class="rr-label">Trade Republic PAC (es. VWCE)</div><div class="rr-val" style="color:#14b8a6" id="rr-robo">3.60%</div><div class="rr-sub" id="rr-robo-sub">6%−2%−0.20%−0.20% · reg. amm. ✓</div></div>
-    <div class="rr-card bank"><div class="rr-label">Fondo attivo bancario</div><div class="rr-val" style="color:var(--purple)" id="rr-bank">1.60%</div><div class="rr-sub" id="rr-bank-sub">6%−2%−0.20%−2.0%</div></div>
-  </div>
-
   <!-- TABS (shared) -->
   <div class="tabs">
-    <button class="tab active" onclick="showTab(0)">📈 Crescita capitale</button>
-    <button class="tab" onclick="showTab(1)">⚖️ Confronto strumenti</button>
-    <button class="tab" onclick="showTab(2)">🇮🇹 Tasse italiane</button>
-    <button class="tab" onclick="showTab(3)">🗓️ Timeline</button>
+    <button class="tab active" onclick="showTab(0)">📈 <span class="tab-full">Crescita capitale</span><span class="tab-short">Crescita</span></button>
+    <button class="tab" onclick="showTab(1)">⚖️ <span class="tab-full">Confronto strumenti</span><span class="tab-short">Confronto</span></button>
+    <button class="tab" onclick="showTab(2)">🇮🇹 <span class="tab-full">Tasse italiane</span><span class="tab-short">Tasse</span></button>
+    <button class="tab" onclick="showTab(3)">🗓️ <span class="tab-full">Timeline</span><span class="tab-short">Timeline</span></button>
   </div>
 
   <!-- TAB 0: CRESCITA -->
@@ -390,6 +391,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 
   <!-- TAB 1: CONFRONTO STRUMENTI -->
   <div class="panel" id="tab1">
+    <div class="rr-strip" style="margin-bottom:14px;">
+      <div class="rr-card etf"><div class="rr-label">ETF ultra low-cost (es. VUSA)</div><div class="rr-val" style="color:var(--green)" id="rr-etf">3.73%</div><div class="rr-sub" id="rr-etf-sub">6%−2%−0.20%−0.07%</div></div>
+      <div class="rr-card robo"><div class="rr-label">Trade Republic PAC (es. VWCE)</div><div class="rr-val" style="color:#14b8a6" id="rr-robo">3.60%</div><div class="rr-sub" id="rr-robo-sub">6%−2%−0.20%−0.20% · reg. amm. ✓</div></div>
+      <div class="rr-card bank"><div class="rr-label">Fondo attivo bancario</div><div class="rr-val" style="color:var(--purple)" id="rr-bank">1.60%</div><div class="rr-sub" id="rr-bank-sub">6%−2%−0.20%−2.0%</div></div>
+    </div>
     <div class="row1">
       <div class="cc">
         <div class="cc-title">Fondo attivo vs Trade Republic PAC vs ETF ultra low-cost — stesso piano, costi diversi</div>
@@ -724,12 +730,13 @@ function updateGoal(){
 
   document.getElementById('g-ans').innerHTML=`${Math.round(needed).toLocaleString('it-IT')} <small>€/mese</small>`;
   document.getElementById('g-ans-sub').innerHTML=
-    `Per puntare a <strong>${fmtFull(rend)}/mese netti</strong> a <strong>${ages.target} anni</strong> (${fmtYears(years)}), ti servono circa <strong>${fmt(fin.target)}</strong> lordi. Netto stimato: <strong>${fmt(fin.capNetto)}</strong> nel ${ages.targetYear}.`;
+    `Per puntare a <strong>${fmtFull(rend)}/mese netti</strong> a <strong>${ages.target} anni</strong> (${fmtYears(years)})<br>
+    Lordo accumulato: <strong>${fmt(fin.target)}</strong> &nbsp;·&nbsp; Netto post-tasse: <strong style="color:var(--green);font-size:15px;">${fmt(fin.capNetto)}</strong> nel ${ages.targetYear}`;
 
   renderInsights('g-insights',[
     {label:'Età FIRE',value:`${ages.target} anni`,sub:`partendo da ${ages.current} anni`},
     {label:'Orizzonte',value:fmtYears(years),sub:`target nel ${ages.targetYear}`},
-    {label:'Capitale FIRE lordo',value:fmt(fin.target),sub:`obiettivo stimato con SWR ${SWR}%`},
+    {label:'Capitale netto stimato',value:`<span style="color:var(--green)">${fmt(fin.capNetto)}</span>`,sub:`lordo: ${fmt(fin.target)} · bollo+CGT applicata`},
     {label:'Versamento annuo',value:fmtFull(annualNeeded),sub:`pari a ${fmtFull(Math.round(needed))}/mese`},
   ]);
 
@@ -792,13 +799,14 @@ function updateSave(){
 
   document.getElementById('s-ans').innerHTML=`${fmt(fin.cap)} <small>lordi</small>`;
   document.getElementById('s-ans-sub').innerHTML=
-    `A <strong>${ages.target} anni</strong> (${fmtYears(years)}), netto post-tasse: <strong>${fmt(fin.capNetto)}</strong> · versamenti tuoi: <strong>${fmt(versatiTot)}</strong> · mercato: <strong>${fmt(Math.max(0,fin.cap-versatiTot))}</strong>`;
+    `<span style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;">${fmt(fin.capNetto)}</span> <span style="color:var(--muted2);font-size:12px;">netto post-tasse</span><br>
+    <span style="font-size:12px;">A <strong>${ages.target} anni</strong> · versamenti: <strong>${fmt(versatiTot)}</strong> · mercato: <strong>${fmt(Math.max(0,fin.cap-versatiTot))}</strong></span>`;
 
   renderInsights('s-insights',[
     {label:'Età target',value:`${ages.target} anni`,sub:`partendo da ${ages.current} anni`},
     {label:'Orizzonte',value:fmtYears(years),sub:`fino al ${ages.targetYear}`},
-    {label:'Capitale netto',value:fmt(fin.capNetto),sub:`dopo bollo e CGT stimata`},
-    {label:'Rendita netta stimata',value:`${fmtFull(renditaNetta)}/mese`,sub:`con SWR ${SWR}%`},
+    {label:'Capitale netto',value:`<span style="color:var(--green)">${fmt(fin.capNetto)}</span>`,sub:`dopo bollo e CGT stimata`},
+    {label:'Rendita netta stimata',value:`<span style="color:var(--green)">${fmtFull(renditaNetta)}/mese</span>`,sub:`con SWR ${SWR}%`},
   ]);
 
   CURRENT_SUMMARY={
@@ -875,14 +883,14 @@ function renderSharedCharts(base, monthly, years, start, fin, meta){
     document.getElementById('rendita-box').innerHTML=`
       <div class="tr n"><span class="tr-l">Prelevi lordo</span><span class="tr-v" style="color:var(--amber)">${fmtFull(fin.grossW)}/mese</span></div>
       <div class="tr m"><span class="tr-l">− CGT (${(fin.gainFrac*100).toFixed(0)}% plusvalenza)</span><span class="tr-v" style="color:var(--red)">− ${fmtFull(taxPerMonth)}/mese</span></div>
-      <div class="tr p"><span class="tr-l">= Ti entra in tasca</span><span class="tr-v" style="color:var(--green);font-size:15px;">${fmtFull(fin.netW)}/mese</span></div>`;
+      <div class="tr p" style="margin-top:4px;padding:14px 13px;"><span class="tr-l" style="font-weight:700;font-size:13px;">= Ti entra in tasca</span><span class="tr-v" style="color:var(--green);font-size:22px;font-weight:700;">${fmtFull(fin.netW)}/mese</span></div>`;
   } else {
     const rendita=Math.round((fin.cap*(SWR/100))/12);
     const rendNetta=Math.round(rendita*(1-fin.gainFrac*(CGT/100)));
     document.getElementById('rendita-box').innerHTML=`
       <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Se iniziassi a prelevare a ${meta.targetAge} anni con SWR ${SWR}%:</div>
       <div class="tr n"><span class="tr-l">Prelievo lordo mensile</span><span class="tr-v" style="color:var(--amber)">${fmtFull(rendita)}/mese</span></div>
-      <div class="tr p"><span class="tr-l">Rendita netta stimata</span><span class="tr-v" style="color:var(--green);font-size:15px;">${fmtFull(rendNetta)}/mese</span></div>`;
+      <div class="tr p" style="margin-top:4px;padding:14px 13px;"><span class="tr-l" style="font-weight:700;font-size:13px;">Rendita netta stimata</span><span class="tr-v" style="color:var(--green);font-size:22px;font-weight:700;">${fmtFull(rendNetta)}/mese</span></div>`;
   }
 
   const feeEtf=projectSimple(monthly,years,start,ETF_TER);
@@ -950,7 +958,13 @@ function showTab(i){
   setTimeout(update,20);
 }
 
-function toggleAdv(){document.getElementById('adv-panel').classList.toggle('open');}
+function toggleAdv(){
+  const panel=document.getElementById('adv-panel');
+  const btn=document.getElementById('adv-btn');
+  panel.classList.toggle('open');
+  const isOpen=panel.classList.contains('open');
+  if(btn){btn.textContent=isOpen?'⚙ Chiudi parametri':'⚙ Parametri avanzati';btn.classList.toggle('open',isOpen);}
+}
 
 syncAllPairs();
 ['ss-ret','ss-swr','ss-bank'].forEach(id=>{
