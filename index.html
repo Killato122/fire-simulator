@@ -102,7 +102,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .rr-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px;}
 .rr-card{border-radius:10px;padding:13px 16px;}
 .rr-card.etf{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);}
-.rr-card.robo{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15);}
+.rr-card.robo{background:rgba(20,184,166,0.07);border:1px solid rgba(20,184,166,0.25);}
 .rr-card.bank{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.2);}
 .rr-label{font-size:11px;color:var(--muted2);margin-bottom:4px;}
 .rr-val{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;}
@@ -138,7 +138,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .fee-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
 .fee-card{border-radius:9px;padding:10px 10px;text-align:center;}
 .fee-card.fc-bank{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);}
-.fee-card.fc-robo{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.15);}
+.fee-card.fc-robo{background:rgba(20,184,166,0.07);border:1px solid rgba(20,184,166,0.25);}
 .fee-card.fc-etf{background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);}
 .fc-name{font-size:10px;color:var(--muted);margin-bottom:4px;}
 .fc-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;}
@@ -347,8 +347,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 
   <!-- REAL RETURN STRIP (shared) -->
   <div class="rr-strip">
-    <div class="rr-card etf"><div class="rr-label">ETF indicizzato low-cost</div><div class="rr-val" style="color:var(--green)" id="rr-etf">3.58%</div><div class="rr-sub" id="rr-etf-sub">6%−2%−0.20%−0.22%</div></div>
-    <div class="rr-card robo"><div class="rr-label">Robo-advisor medio</div><div class="rr-val" style="color:var(--red)" id="rr-robo">2.85%</div><div class="rr-sub" id="rr-robo-sub">6%−2%−0.20%−0.95%</div></div>
+    <div class="rr-card etf"><div class="rr-label">ETF ultra low-cost (es. VUSA)</div><div class="rr-val" style="color:var(--green)" id="rr-etf">3.73%</div><div class="rr-sub" id="rr-etf-sub">6%−2%−0.20%−0.07%</div></div>
+    <div class="rr-card robo"><div class="rr-label">Trade Republic PAC (es. VWCE)</div><div class="rr-val" style="color:#14b8a6" id="rr-robo">3.60%</div><div class="rr-sub" id="rr-robo-sub">6%−2%−0.20%−0.20% · reg. amm. ✓</div></div>
     <div class="rr-card bank"><div class="rr-label">Fondo attivo bancario</div><div class="rr-val" style="color:var(--purple)" id="rr-bank">1.60%</div><div class="rr-sub" id="rr-bank-sub">6%−2%−0.20%−2.0%</div></div>
   </div>
 
@@ -392,19 +392,19 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   <div class="panel" id="tab1">
     <div class="row1">
       <div class="cc">
-        <div class="cc-title">Fondo attivo vs robo-advisor vs ETF indicizzato — stesso piano, costi diversi</div>
+        <div class="cc-title">Fondo attivo vs Trade Republic PAC vs ETF ultra low-cost — stesso piano, costi diversi</div>
         <div class="cc-sub">La differenza è solo quanto paghi di commissioni ogni anno</div>
         <div class="leg">
           <div class="leg-i"><div class="leg-dot" style="background:var(--purple)"></div>Fondo banca (~2%)</div>
-          <div class="leg-i"><div class="leg-dot" style="background:var(--red)"></div>Robo-advisor (0.95%)</div>
-          <div class="leg-i"><div class="leg-dot" style="background:var(--green)"></div>ETF indicizzato (0.22%)</div>
+          <div class="leg-i"><div class="leg-dot" style="background:#14b8a6"></div>Trade Republic PAC (0.20%)</div>
+          <div class="leg-i"><div class="leg-dot" style="background:var(--green)"></div>ETF ultra low-cost (0.07%)</div>
         </div>
         <div class="cwrap" style="height:260px"><canvas id="c-fees"></canvas></div>
         <div class="fee-cards" id="fee-cards"></div>
       </div>
     </div>
     <div class="note">
-      <strong>Perché il fondo bancario costa di più:</strong> I fondi a gestione attiva distribuiti tramite banca hanno TER tipicamente tra 1.5% e 2.5%/anno: dentro ci sono il gestore, la rete commerciale e spesso altri costi impliciti. Gli ETF indicizzati replicano un mercato in modo passivo, quindi il costo annuale può essere molto più basso. <strong>Fiscalmente, a parità di regime amministrato, la differenza è minima</strong>: cambia soprattutto il costo, non la struttura della tassazione italiana.
+      <strong>Trade Republic PAC:</strong> Il piano di accumulo (PAC) su Trade Republic è a <strong>€0 per transazione</strong> — il solo costo è il TER dell'ETF scelto (es. 0.20% per VWCE, 0.07% per ETF ultra low-cost). Trade Republic opera in <strong>regime amministrato</strong> per i clienti italiani: bollo 0.20% e CGT 26% vengono calcolati e versati automaticamente dal broker, senza che tu debba fare nulla. <strong>Perché il fondo bancario costa di più:</strong> TER tipico 1.5–2.5%/anno, include gestore + rete commerciale + costi impliciti. La struttura fiscale è identica (sempre regime amministrato), cambia solo il costo annuale.
     </div>
   </div>
 
@@ -430,7 +430,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
       </div>
     </div>
     <div class="note">
-      <strong>Come funziona la tassazione nel regime amministrato:</strong> il <strong>bollo 0.20%</strong> viene addebitato ogni anno dall'intermediario sul valore del portafoglio. La <strong>CGT 26%</strong> si applica solo sulla plusvalenza, non su quello che hai versato. Con un PAC il prezzo medio di carico si alza nel tempo, quindi la quota effettivamente tassabile è spesso molto più bassa del capitale totale.
+      <strong>Come funziona la tassazione nel regime amministrato (Trade Republic incluso):</strong> il <strong>bollo 0.20%</strong> viene addebitato ogni anno dall'intermediario sul valore del portafoglio. La <strong>CGT 26%</strong> si applica solo sulla plusvalenza, non su quello che hai versato. <strong>Trade Republic calcola e versa le tasse automaticamente</strong> per i clienti italiani: non devi fare nulla in dichiarazione dei redditi. Con un PAC il prezzo medio di carico si alza nel tempo, quindi la quota effettivamente tassabile è spesso molto più bassa del capitale totale.
     </div>
   </div>
 
@@ -450,7 +450,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 
 <script>
 // ── CONSTANTS ──
-const INF=2, CGT=26, BOLLO=0.2, ROBO=0.95, ETF_TER=0.22;
+const INF=2, CGT=26, BOLLO=0.2, TR_TER=0.20, ETF_TER=0.07;
 const Y0=new Date().getFullYear();
 let RET=6, SWR=3.5, BANK_TER=2.0;
 let MODE='goal';
@@ -686,13 +686,13 @@ function update(){
   document.getElementById('vv-bank').textContent=BANK_TER.toFixed(1)+'%';
 
   const rrEtf=(RET-INF-BOLLO-ETF_TER).toFixed(2);
-  const rrRobo=(RET-INF-BOLLO-ROBO).toFixed(2);
+  const rrRobo=(RET-INF-BOLLO-TR_TER).toFixed(2);
   const rrBank=(RET-INF-BOLLO-BANK_TER).toFixed(2);
   document.getElementById('rr-etf').textContent=rrEtf+'%';
   document.getElementById('rr-robo').textContent=rrRobo+'%';
   document.getElementById('rr-bank').textContent=rrBank+'%';
   document.getElementById('rr-etf-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${ETF_TER}%`;
-  document.getElementById('rr-robo-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${ROBO}%`;
+  document.getElementById('rr-robo-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${TR_TER}% · reg. amm. ✓`;
   document.getElementById('rr-bank-sub').textContent=`${RET}%−${INF}%−${BOLLO}%−${BANK_TER}%`;
 
   if(MODE==='goal')updateGoal();
@@ -886,12 +886,12 @@ function renderSharedCharts(base, monthly, years, start, fin, meta){
   }
 
   const feeEtf=projectSimple(monthly,years,start,ETF_TER);
-  const feeRobo=projectSimple(monthly,years,start,ROBO);
+  const feeRobo=projectSimple(monthly,years,start,TR_TER);
   const feeBank=projectSimple(monthly,years,start,BANK_TER);
   mk('c-fees',{type:'line',data:{labels:yearsArr,datasets:[
     {label:`Fondo banca (${BANK_TER}%)`,data:feeBank.map(d=>d.cap),borderColor:'#8b5cf6',borderWidth:2,fill:false,pointRadius:0,tension:0.4,borderDash:[4,3]},
-    {label:'Robo-advisor (0.95%)',data:feeRobo.map(d=>d.cap),borderColor:'#ef4444',borderWidth:2,fill:false,pointRadius:0,tension:0.4,borderDash:[5,3]},
-    {label:'ETF indicizzato (0.22%)',data:feeEtf.map(d=>d.cap),borderColor:'#10b981',borderWidth:2.5,fill:false,pointRadius:0,tension:0.4},
+    {label:`Trade Republic PAC (${TR_TER}%)`,data:feeRobo.map(d=>d.cap),borderColor:'#14b8a6',borderWidth:2,fill:false,pointRadius:0,tension:0.4,borderDash:[5,3]},
+    {label:`ETF ultra low-cost (${ETF_TER}%)`,data:feeEtf.map(d=>d.cap),borderColor:'#10b981',borderWidth:2.5,fill:false,pointRadius:0,tension:0.4},
   ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
     plugins:{legend:{display:false},tooltip:TT},
     scales:{x:{ticks:{...TX,maxTicksLimit:9},grid:{color:GR}},y:{ticks:{callback:fmt,...TX},grid:{color:GR},border:{display:false}}}}});
@@ -901,8 +901,8 @@ function renderSharedCharts(base, monthly, years, start, fin, meta){
   const capEtf=feeEtf[feeEtf.length-1].cap;
   document.getElementById('fee-cards').innerHTML=`
     <div class="fee-card fc-bank"><div class="fc-name">Fondo attivo (${BANK_TER}%)</div><div class="fc-val" style="color:var(--purple)">${fmt(capBank)}</div><div class="fc-diff"></div></div>
-    <div class="fee-card fc-robo"><div class="fc-name">Robo-advisor (0.95%)</div><div class="fc-val" style="color:var(--red)">${fmt(capRobo)}</div><div class="fc-diff">+${fmt(capRobo-capBank)} vs fondo attivo</div></div>
-    <div class="fee-card fc-etf"><div class="fc-name">ETF indicizzato (0.22%)</div><div class="fc-val" style="color:var(--green)">${fmt(capEtf)}</div><div class="fc-diff">+${fmt(capEtf-capBank)} vs fondo attivo</div></div>`;
+    <div class="fee-card fc-robo"><div class="fc-name">Trade Republic PAC (${TR_TER}%)</div><div class="fc-val" style="color:#14b8a6">${fmt(capRobo)}</div><div class="fc-diff">+${fmt(capRobo-capBank)} vs fondo attivo</div></div>
+    <div class="fee-card fc-etf"><div class="fc-name">ETF ultra low-cost (${ETF_TER}%)</div><div class="fc-val" style="color:var(--green)">${fmt(capEtf)}</div><div class="fc-diff">+${fmt(capEtf-capBank)} vs fondo attivo</div></div>`;
 
   mk('c-bollo',{type:'bar',data:{labels:yearsArr.filter((_,i)=>i%4===0),datasets:[
     {label:'Bollo annuale',data:base.filter((_,i)=>i%4===0).map(d=>Math.round(d.cap*(BOLLO/100))),backgroundColor:'rgba(249,115,22,0.65)',borderRadius:3}
