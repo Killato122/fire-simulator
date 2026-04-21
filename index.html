@@ -150,6 +150,19 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .note{font-size:11px;color:var(--muted);line-height:1.75;padding:12px 15px;background:var(--card2);border-radius:9px;margin-top:12px;}
 .note strong{color:var(--muted2);}
 .divline{height:1px;background:var(--border);margin:12px 0;}
+
+/* MENSILITÀ EXTRA */
+.mex-bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;}
+.mex-title{font-size:11px;color:var(--muted2);font-weight:700;margin-right:2px;}
+.mex-item{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border2);border-radius:99px;padding:5px 12px;cursor:pointer;color:var(--muted2);transition:border-color 0.15s,color 0.15s;user-select:none;}
+.mex-item:has(input[type=checkbox]:checked){border-color:var(--amber);color:var(--text);}
+.mex-item input[type=checkbox]{accent-color:var(--amber);cursor:pointer;}
+.mex-num{width:62px;border:none;background:transparent;color:var(--amber);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:0;outline:none;text-align:right;cursor:text;}
+.mex-num:disabled{color:var(--muted);pointer-events:none;}
+.mex-num::-webkit-outer-spin-button,.mex-num::-webkit-inner-spin-button{-webkit-appearance:none;}
+.mex-num[type=number]{appearance:textfield;-moz-appearance:textfield;}
+.mex-euro{font-size:10px;color:var(--muted);}
+.mex-impact{font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600;margin-left:4px;}
 .footer{text-align:center;font-size:11px;color:var(--muted);margin-top:36px;}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;}
 .timeline-table{width:100%;border-collapse:collapse;min-width:760px;background:var(--card);}
@@ -187,6 +200,11 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   .tab{flex:1 0 auto;white-space:nowrap;}
   .row2{grid-template-columns:1fr;}
   .adv-g{grid-template-columns:1fr 1fr;}
+  /* Slider più grandi su mobile per touch più preciso */
+  input[type=range]{height:6px;margin:6px 0;}
+  input[type=range]::-webkit-slider-thumb{width:28px;height:28px;border-width:4px;}
+  .mex-bar{flex-direction:column;align-items:flex-start;}
+  .mex-impact{margin-left:0;}
 }
 .tab-short{display:none;}
 @media(max-width:540px){
@@ -334,6 +352,24 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     <button class="share-btn" id="share-btn" type="button" onclick="shareForecast()">Condividi previsione</button>
   </div>
 
+  <!-- MENSILITÀ EXTRA -->
+  <div class="mex-bar">
+    <span class="mex-title">Mensilità extra reinvestite:</span>
+    <label class="mex-item">
+      <input type="checkbox" id="cb-13">
+      <span>13ª</span>
+      <input type="number" class="mex-num" id="val-13" min="100" max="15000" step="100" value="1000" disabled>
+      <span class="mex-euro">€/anno</span>
+    </label>
+    <label class="mex-item">
+      <input type="checkbox" id="cb-14">
+      <span>14ª</span>
+      <input type="number" class="mex-num" id="val-14" min="100" max="15000" step="100" value="1000" disabled>
+      <span class="mex-euro">€/anno</span>
+    </label>
+    <span class="mex-impact" id="mex-impact"></span>
+  </div>
+
   <!-- PARAMS + ADV (shared) -->
   <div class="params-row">
     <span style="font-size:11px;color:var(--muted);">Parametri:</span>
@@ -461,6 +497,7 @@ const Y0=new Date().getFullYear();
 let RET=6, SWR=3.5, BANK_TER=2.0;
 let MODE='goal';
 let CURRENT_SUMMARY=null;
+let EXTRA_MONTHLY=0;
 
 const fmt=n=>{if(n>=1e6)return`€${(n/1e6).toFixed(2).replace('.',',')}M`;if(n>=1000)return`€${Math.round(n/1000)}k`;return`€${Math.round(n)}`;};
 const fmtFull=n=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
@@ -560,7 +597,27 @@ function syncPair(rangeId,inputId){
     input.value=normalized;
   };
   applyValue(range.value);
-  range.addEventListener('input',()=>{input.value=range.value;update();});
+
+  // Mobile: rileva scroll verticale e blocca aggiornamenti accidentali dello slider
+  let tStartX=0,tStartY=0,lockSlider=false;
+  range.addEventListener('touchstart',e=>{
+    tStartX=e.touches[0].clientX;
+    tStartY=e.touches[0].clientY;
+    lockSlider=false;
+  },{passive:true});
+  range.addEventListener('touchmove',e=>{
+    const dx=Math.abs(e.touches[0].clientX-tStartX);
+    const dy=Math.abs(e.touches[0].clientY-tStartY);
+    if(!lockSlider&&dy>6&&dy>dx){lockSlider=true;}
+    if(lockSlider){range.value=input.value;} // ripristina valore se è uno scroll
+  },{passive:true});
+  range.addEventListener('touchend',()=>{lockSlider=false;},{passive:true});
+
+  range.addEventListener('input',()=>{
+    if(lockSlider){range.value=input.value;return;}
+    input.value=range.value;
+    update();
+  });
   const commitInput=()=>{
     if(input.value===''||input.value==='-'){input.value=range.value;return;}
     applyValue(input.value);
@@ -569,9 +626,7 @@ function syncPair(rangeId,inputId){
   input.addEventListener('change',commitInput);
   input.addEventListener('blur',commitInput);
   input.addEventListener('keydown',event=>{
-    if(event.key==='Enter'){
-      input.blur();
-    }
+    if(event.key==='Enter'){input.blur();}
   });
 }
 function syncAllPairs(){SYNC_PAIRS.forEach(([rangeId,inputId])=>syncPair(rangeId,inputId));}
@@ -691,6 +746,12 @@ function update(){
   document.getElementById('vv-swr').textContent=SWR+'%';
   document.getElementById('vv-bank').textContent=BANK_TER.toFixed(1)+'%';
 
+  const extra13=document.getElementById('cb-13')?.checked?(+document.getElementById('val-13').value||0):0;
+  const extra14=document.getElementById('cb-14')?.checked?(+document.getElementById('val-14').value||0):0;
+  EXTRA_MONTHLY=(extra13+extra14)/12;
+  const mex=document.getElementById('mex-impact');
+  if(mex)mex.textContent=EXTRA_MONTHLY>0?`≈ +${fmt(EXTRA_MONTHLY)}/mese equivalente`:'';
+
   const rrEtf=(RET-INF-BOLLO-ETF_TER).toFixed(2);
   const rrRobo=(RET-INF-BOLLO-TR_TER).toFixed(2);
   const rrBank=(RET-INF-BOLLO-BANK_TER).toFixed(2);
@@ -722,15 +783,17 @@ function updateGoal(){
   const grossW=rendNomNetto/(1-approxGF*(CGT/100));
   const targetCap=(grossW*12)/(SWR/100);
   const r=RET/100/12;
-  const needed=monthlyNeeded(targetCap,r,years*12,start);
+  const neededTotal=monthlyNeeded(targetCap,r,years*12,start);
+  const needed=Math.max(0,neededTotal-EXTRA_MONTHLY);
   const annualNeeded=Math.round(needed*12);
 
-  const base=project(needed,years,start,rend,0);
+  const base=project(needed,years,start,rend,EXTRA_MONTHLY);
   const fin=base[base.length-1];
 
   document.getElementById('g-ans').innerHTML=`${Math.round(needed).toLocaleString('it-IT')} <small>€/mese</small>`;
+  const extraNote=EXTRA_MONTHLY>0?` &nbsp;·&nbsp; <span style="color:var(--amber)">+${fmt(EXTRA_MONTHLY)}/mese da mensilità extra</span>`:'';
   document.getElementById('g-ans-sub').innerHTML=
-    `Per puntare a <strong>${fmtFull(rend)}/mese netti</strong> a <strong>${ages.target} anni</strong> (${fmtYears(years)})<br>
+    `Per puntare a <strong>${fmtFull(rend)}/mese netti</strong> a <strong>${ages.target} anni</strong> (${fmtYears(years)})${extraNote}<br>
     Lordo accumulato: <strong>${fmt(fin.target)}</strong> &nbsp;·&nbsp; Netto post-tasse: <strong style="color:var(--green);font-size:15px;">${fmt(fin.capNetto)}</strong> nel ${ages.targetYear}`;
 
   renderInsights('g-insights',[
@@ -791,9 +854,9 @@ function updateSave(){
   document.getElementById('s-v-age-target').innerHTML=`${ages.target} <small>anni</small>`;
   document.getElementById('s-v-start').innerHTML=`${start.toLocaleString('it-IT')} <small>€</small>`;
 
-  const base=project(monthly,years,start,0,0);
+  const base=project(monthly,years,start,0,EXTRA_MONTHLY);
   const fin=base[base.length-1];
-  const versatiTot=start+monthly*12*years;
+  const versatiTot=start+(monthly+EXTRA_MONTHLY)*12*years;
   const renditaLorda=Math.round((fin.cap*(SWR/100))/12);
   const renditaNetta=Math.round(renditaLorda*(1-fin.gainFrac*(CGT/100)));
 
@@ -970,6 +1033,16 @@ syncAllPairs();
 ['ss-ret','ss-swr','ss-bank'].forEach(id=>{
   const el=document.getElementById(id);
   if(el)el.addEventListener('input',update);
+});
+
+// Mensilità extra: abilita/disabilita input e aggiorna
+['13','14'].forEach(n=>{
+  const cb=document.getElementById('cb-'+n);
+  const inp=document.getElementById('val-'+n);
+  if(!cb||!inp)return;
+  cb.addEventListener('change',()=>{inp.disabled=!cb.checked;update();});
+  inp.addEventListener('change',update);
+  inp.addEventListener('blur',update);
 });
 
 update();
