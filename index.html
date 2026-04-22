@@ -258,8 +258,7 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
 .hero-text{margin-bottom:28px;text-align:center;}
 .hero-text h1{font-size:22px;font-weight:800;color:var(--amber);margin-bottom:10px;letter-spacing:0;}
 .hero-text p{font-size:14px;color:var(--muted2);line-height:1.7;max-width:680px;margin:0 auto 16px;}
-.kofi-btn{display:inline-flex;align-items:center;gap:7px;background:rgba(255,94,91,0.12);border:1px solid rgba(255,94,91,0.28);border-radius:99px;color:#ff7775;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:8px 18px;text-decoration:none;transition:background 0.15s,border-color 0.15s,transform 0.15s;}
-.kofi-btn:hover{background:rgba(255,94,91,0.2);border-color:rgba(255,94,91,0.5);transform:translateY(-1px);}
+#kofi-widget-container .kofiWidgetOverlay-btn{font-family:'Syne',sans-serif!important;font-size:13px!important;font-weight:700!important;}
 
 /* COOKIE BANNER */
 .cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(18,20,26,0.97);border-top:1px solid var(--border2);padding:16px 24px;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 -8px 32px rgba(0,0,0,0.45);backdrop-filter:blur(14px);}
@@ -284,7 +283,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   <div class="hero-text">
     <h1>Calcolatore FIRE Italia</h1>
     <p>Scopri quanto devi investire ogni mese per raggiungere l'indipendenza finanziaria in Italia — con tasse reali (bollo 0.20%, CGT 26%), inflazione e confronto tra ETF, Trade Republic e fondi bancari attivi.</p>
-    <a class="kofi-btn" href="https://ko-fi.com/michaelalbano" target="_blank" rel="noopener">☕ Offrimi un caffè</a>
+    <div id="kofi-widget-container"></div>
+    <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
+    <script type='text/javascript'>kofiwidget2.init('Offrimi un caffè', '#FF5F5F', 'michaelalbano');kofiwidget2.draw('kofi-widget-container');</script>
   </div>
 
   <!-- MODE TOGGLE -->
@@ -1269,6 +1270,17 @@ function cookieChoice(choice){
     <button class="cookie-accept" onclick="cookieChoice('accepted')">Accetta tutto</button>
   </div>
 </div>
+
+<!-- Ko-fi floating widget -->
+<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<script>
+  kofiWidgetOverlay.draw('michaelalbano', {
+    'type': 'floating-chat',
+    'floating-chat.donateButton.text': 'Offrimi un caffè',
+    'floating-chat.donateButton.background-color': '#FF5F5F',
+    'floating-chat.donateButton.text-color': '#fff'
+  });
+</script>
 
 </body>
 </html>
