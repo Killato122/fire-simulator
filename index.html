@@ -53,14 +53,13 @@ body{
 .sc{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--panel) 0%,var(--card) 100%);border:1px solid var(--border);border-radius:var(--r);padding:23px 24px;box-shadow:0 12px 38px rgba(0,0,0,0.18);}
 .sc::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--amber),var(--cyan));opacity:0.9;}
 .sc-label{font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:0;margin-bottom:10px;}
-.sc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;}
-.sc-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:600;color:var(--text);letter-spacing:0;margin-bottom:16px;line-height:1;}
-.sc-val small{font-size:17px;color:var(--muted2);margin-left:4px;}
-.sc-top .sc-val{margin-bottom:0;flex:1;min-width:0;font-size:30px;white-space:nowrap;overflow:hidden;}
-.sc-num{width:84px;border:1px solid var(--border2);border-radius:8px;background:#111317;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;padding:10px 12px;outline:none;text-align:right;}
-.sc-num:focus{border-color:rgba(238,178,74,0.62);box-shadow:0 0 0 3px rgba(238,178,74,0.14);}
-.sc-num::-webkit-outer-spin-button,.sc-num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.sc-num[type=number]{appearance:textfield;-moz-appearance:textfield;}
+.sc-val{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:600;color:var(--text);letter-spacing:0;margin-bottom:14px;line-height:1;white-space:nowrap;overflow:hidden;}
+.sc-val small{font-size:16px;color:var(--muted2);margin-left:4px;}
+.sc-controls{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sc-controls input[type=range]{flex:1;}
+.sc-btn{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:var(--panel2);border:1px solid var(--border2);color:var(--text);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s,transform 0.1s;user-select:none;}
+.sc-btn:hover{background:var(--border);}
+.sc-btn:active{transform:scale(0.9);}
 input[type=range]{-webkit-appearance:none;width:100%;height:7px;background:linear-gradient(90deg,rgba(238,178,74,0.46),rgba(52,198,186,0.34));border-radius:4px;cursor:pointer;outline:none;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:var(--amber);border-radius:50%;border:3px solid #111317;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 0 0 1px rgba(255,255,255,0.2),0 8px 18px rgba(0,0,0,0.35);}
 input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
@@ -213,9 +212,8 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   .mode-btn{width:100%;padding:14px 16px;line-height:1.3;}
   .sc,.cc,.adv,.result-box{padding:18px 16px;}
   .sliders.cols2,.sliders.cols3,.sliders.cols4{grid-template-columns:1fr;}
-  .sc-top{flex-direction:column;align-items:stretch;}
-  .sc-num{width:100%;text-align:left;}
-  .sc-val{font-size:28px;}
+  .sc-val{font-size:26px;}
+  .sc-btn{width:40px;height:40px;font-size:22px;}
   .rb-main{font-size:42px;}
   .rb-main small{font-size:17px;}
   .insights{grid-template-columns:repeat(2,1fr);}
@@ -301,38 +299,46 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     <div class="sliders cols4">
       <div class="sc">
         <div class="sc-label">Voglio ogni mese (netti, euro di oggi)</div>
-        <div class="sc-top">
-          <div class="sc-val" id="g-v-rend">2.000 <small>€/mese</small></div>
-          <input class="sc-num" type="number" id="g-i-rend" min="500" max="8000" step="100" value="2000">
+        <div class="sc-val" id="g-v-rend">2.000 <small>€/mese</small></div>
+        <input class="sc-num" type="number" id="g-i-rend" min="500" max="8000" step="100" value="2000" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="g-s-rend" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="g-s-rend" min="500" max="8000" step="100" value="2000">
+          <button class="sc-btn" data-target="g-s-rend" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="g-s-rend" min="500" max="8000" step="100" value="2000">
         <div class="sc-range"><span>€500</span><span>€8.000</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Età attuale</div>
-        <div class="sc-top">
-          <div class="sc-val" id="g-v-age-now">28 <small>anni</small></div>
-          <input class="sc-num" type="number" id="g-i-age-now" min="18" max="75" step="1" value="28">
+        <div class="sc-val" id="g-v-age-now">28 <small>anni</small></div>
+        <input class="sc-num" type="number" id="g-i-age-now" min="18" max="75" step="1" value="28" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="g-s-age-now" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="g-s-age-now" min="18" max="75" step="1" value="28">
+          <button class="sc-btn" data-target="g-s-age-now" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="g-s-age-now" min="18" max="75" step="1" value="28">
         <div class="sc-range"><span>18 anni</span><span>75 anni</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Età FIRE</div>
-        <div class="sc-top">
-          <div class="sc-val" id="g-v-age-fire">55 <small>anni</small></div>
-          <input class="sc-num" type="number" id="g-i-age-fire" min="19" max="90" step="1" value="55">
+        <div class="sc-val" id="g-v-age-fire">55 <small>anni</small></div>
+        <input class="sc-num" type="number" id="g-i-age-fire" min="19" max="90" step="1" value="55" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="g-s-age-fire" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="g-s-age-fire" min="19" max="90" step="1" value="55">
+          <button class="sc-btn" data-target="g-s-age-fire" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="g-s-age-fire" min="19" max="90" step="1" value="55">
         <div class="sc-range"><span>19 anni</span><span>90 anni</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Ho già investito</div>
-        <div class="sc-top">
-          <div class="sc-val" id="g-v-start">6.000 <small>€</small></div>
-          <input class="sc-num" type="number" id="g-i-start" min="0" max="200000" step="500" value="6000">
+        <div class="sc-val" id="g-v-start">6.000 <small>€</small></div>
+        <input class="sc-num" type="number" id="g-i-start" min="0" max="200000" step="500" value="6000" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="g-s-start" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="g-s-start" min="0" max="200000" step="500" value="6000">
+          <button class="sc-btn" data-target="g-s-start" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="g-s-start" min="0" max="200000" step="500" value="6000">
         <div class="sc-range"><span>€0</span><span>€200.000</span></div>
       </div>
     </div>
@@ -354,38 +360,46 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
     <div class="sliders cols4">
       <div class="sc">
         <div class="sc-label">Verso ogni mese</div>
-        <div class="sc-top">
-          <div class="sc-val" id="s-v-monthly">500 <small>€/mese</small></div>
-          <input class="sc-num" type="number" id="s-i-monthly" min="50" max="3000" step="50" value="500">
+        <div class="sc-val" id="s-v-monthly">500 <small>€/mese</small></div>
+        <input class="sc-num" type="number" id="s-i-monthly" min="50" max="3000" step="50" value="500" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="s-s-monthly" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="s-s-monthly" min="50" max="3000" step="50" value="500">
+          <button class="sc-btn" data-target="s-s-monthly" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="s-s-monthly" min="50" max="3000" step="50" value="500">
         <div class="sc-range"><span>€50</span><span>€3.000</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Età attuale</div>
-        <div class="sc-top">
-          <div class="sc-val" id="s-v-age-now">28 <small>anni</small></div>
-          <input class="sc-num" type="number" id="s-i-age-now" min="18" max="75" step="1" value="28">
+        <div class="sc-val" id="s-v-age-now">28 <small>anni</small></div>
+        <input class="sc-num" type="number" id="s-i-age-now" min="18" max="75" step="1" value="28" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="s-s-age-now" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="s-s-age-now" min="18" max="75" step="1" value="28">
+          <button class="sc-btn" data-target="s-s-age-now" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="s-s-age-now" min="18" max="75" step="1" value="28">
         <div class="sc-range"><span>18 anni</span><span>75 anni</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Età target</div>
-        <div class="sc-top">
-          <div class="sc-val" id="s-v-age-target">60 <small>anni</small></div>
-          <input class="sc-num" type="number" id="s-i-age-target" min="19" max="90" step="1" value="60">
+        <div class="sc-val" id="s-v-age-target">60 <small>anni</small></div>
+        <input class="sc-num" type="number" id="s-i-age-target" min="19" max="90" step="1" value="60" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="s-s-age-target" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="s-s-age-target" min="19" max="90" step="1" value="60">
+          <button class="sc-btn" data-target="s-s-age-target" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="s-s-age-target" min="19" max="90" step="1" value="60">
         <div class="sc-range"><span>19 anni</span><span>90 anni</span></div>
       </div>
       <div class="sc">
         <div class="sc-label">Ho già investito</div>
-        <div class="sc-top">
-          <div class="sc-val" id="s-v-start">6.000 <small>€</small></div>
-          <input class="sc-num" type="number" id="s-i-start" min="0" max="200000" step="500" value="6000">
+        <div class="sc-val" id="s-v-start">6.000 <small>€</small></div>
+        <input class="sc-num" type="number" id="s-i-start" min="0" max="200000" step="500" value="6000" hidden>
+        <div class="sc-controls">
+          <button class="sc-btn" data-target="s-s-start" data-dir="-1" aria-label="Diminuisci">−</button>
+          <input type="range" id="s-s-start" min="0" max="200000" step="500" value="6000">
+          <button class="sc-btn" data-target="s-s-start" data-dir="1" aria-label="Aumenta">+</button>
         </div>
-        <input type="range" id="s-s-start" min="0" max="200000" step="500" value="6000">
         <div class="sc-range"><span>€0</span><span>€200.000</span></div>
       </div>
     </div>
@@ -443,10 +457,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18);}
   <div class="adv" id="adv-panel">
     <div style="font-size:13px;font-weight:700;">Parametri avanzati</div>
     <div class="adv-g">
-      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Rendimento annuo lordo</span><span class="adv-val" id="vv-ret">6%</span></div><input type="range" id="ss-ret" min="2" max="12" step="0.5" value="6"></div>
-      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Safe Withdrawal Rate</span><span class="adv-val" id="vv-swr">3.5%</span></div><input type="range" id="ss-swr" min="2" max="6" step="0.25" value="3.5"></div>
-      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">TER fondo banca (stima)</span><span class="adv-val" id="vv-bank">2.0%</span></div><input type="range" id="ss-bank" min="0.5" max="3.5" step="0.1" value="2.0"></div>
-      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Inflazione annua</span><span class="adv-val" id="vv-inf">2%</span></div><input type="range" id="ss-inf" min="0" max="5" step="0.5" value="2"></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Rendimento annuo lordo</span><span class="adv-val" id="vv-ret">6%</span></div><div class="sc-controls"><button class="sc-btn" data-target="ss-ret" data-dir="-1" aria-label="Diminuisci">−</button><input type="range" id="ss-ret" min="2" max="12" step="0.5" value="6"><button class="sc-btn" data-target="ss-ret" data-dir="1" aria-label="Aumenta">+</button></div></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Safe Withdrawal Rate</span><span class="adv-val" id="vv-swr">3.5%</span></div><div class="sc-controls"><button class="sc-btn" data-target="ss-swr" data-dir="-1" aria-label="Diminuisci">−</button><input type="range" id="ss-swr" min="2" max="6" step="0.25" value="3.5"><button class="sc-btn" data-target="ss-swr" data-dir="1" aria-label="Aumenta">+</button></div></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">TER fondo banca (stima)</span><span class="adv-val" id="vv-bank">2.0%</span></div><div class="sc-controls"><button class="sc-btn" data-target="ss-bank" data-dir="-1" aria-label="Diminuisci">−</button><input type="range" id="ss-bank" min="0.5" max="3.5" step="0.1" value="2.0"><button class="sc-btn" data-target="ss-bank" data-dir="1" aria-label="Aumenta">+</button></div></div>
+      <div class="adv-item"><div class="adv-head"><span class="adv-lbl">Inflazione annua</span><span class="adv-val" id="vv-inf">2%</span></div><div class="sc-controls"><button class="sc-btn" data-target="ss-inf" data-dir="-1" aria-label="Diminuisci">−</button><input type="range" id="ss-inf" min="0" max="5" step="0.5" value="2"><button class="sc-btn" data-target="ss-inf" data-dir="1" aria-label="Aumenta">+</button></div></div>
     </div>
   </div>
 
@@ -766,6 +780,26 @@ function syncPair(rangeId,inputId){
   });
 }
 function syncAllPairs(){SYNC_PAIRS.forEach(([rangeId,inputId])=>syncPair(rangeId,inputId));}
+function initStepButtons(){
+  document.querySelectorAll('.sc-btn').forEach(btn=>{
+    const dir=Number(btn.dataset.dir);
+    const doStep=()=>{
+      const range=document.getElementById(btn.dataset.target);
+      if(!range)return;
+      if(dir>0)range.stepUp();else range.stepDown();
+      range.dispatchEvent(new Event('input',{bubbles:true}));
+    };
+    let holdTimer;
+    const startHold=()=>{doStep();holdTimer=setTimeout(()=>{holdTimer=setInterval(doStep,80);},400);};
+    const stopHold=()=>clearInterval(holdTimer);
+    btn.addEventListener('mousedown',startHold);
+    btn.addEventListener('mouseup',stopHold);
+    btn.addEventListener('mouseleave',stopHold);
+    btn.addEventListener('touchstart',e=>{e.preventDefault();startHold();},{passive:false});
+    btn.addEventListener('touchend',stopHold);
+    btn.addEventListener('touchcancel',stopHold);
+  });
+}
 function normalizeAgePair(currentIds,targetIds){
   const currentRange=document.getElementById(currentIds[0]);
   const targetRange=document.getElementById(targetIds[0]);
@@ -1234,6 +1268,7 @@ function toggleAdv(){
 
 applyUrlState();
 syncAllPairs();
+initStepButtons();
 ['ss-ret','ss-swr','ss-bank','ss-inf'].forEach(id=>{
   const el=document.getElementById(id);
   if(el)el.addEventListener('input',update);
